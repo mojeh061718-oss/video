@@ -312,8 +312,9 @@ function renderSettingsTab(body) {
   const keyHelp = el(
     'details',
     { class: 'help' },
-    el('summary', { text: 'How do I get a free API key?' }),
+    el('summary', { text: 'What is this key, and how do I get one?' }),
     helpList([
+      'Why a key at all? The YouTube app fills your feed using your Google account. This app never uses your account (that’s what protects your own feed and history), so Google requires it to identify itself with its own free key instead. It’s unrelated to your Premium membership and costs nothing.',
       'Go to console.cloud.google.com and sign in with any Google account.',
       'Create a project (name it anything, e.g. “KidTube”).',
       'In “APIs & Services → Library”, search for “YouTube Data API v3” and click Enable.',

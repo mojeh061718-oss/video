@@ -34,6 +34,9 @@ test('quota-exceeded mode shows the parent banner but kid feed stays calm', asyn
   // Flip the mock into quota-exhausted mode and force a refresh attempt.
   await page.goto('?mock=quota#/parent/channels');
   await page.getByRole('button', { name: 'Refresh all now' }).click();
+  // Wait for the refresh to actually finish (and write the quota flag)
+  // before reloading, or the reload can win the race.
+  await expect(page.getByText(/1 failed/)).toBeVisible();
   await page.reload();
   await expect(page.getByText(/Daily YouTube limit reached/)).toBeVisible();
 

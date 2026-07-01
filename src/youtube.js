@@ -123,7 +123,9 @@ export async function refreshChannel(channel) {
   });
   const videos = (playlist.items || [])
     .map((item) => item.snippet)
-    .filter((s) => s?.resourceId?.videoId)
+    // Uploads playlists include "Private video"/"Deleted video" placeholders;
+    // they have no thumbnails (a locale-independent signal), so drop them.
+    .filter((s) => s?.resourceId?.videoId && (s.thumbnails?.medium?.url || s.thumbnails?.default?.url))
     .map((s) => ({
       id: s.resourceId.videoId,
       title: s.title,

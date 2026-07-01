@@ -72,7 +72,8 @@ function showApiKey(stage) {
   screen(
     stage,
     el('h1', { text: 'Connect to YouTube' }),
-    el('p', { class: 'muted', text: 'The app needs a free YouTube API key to load videos. It’s separate from your YouTube account, so nothing here ever touches your own feed or history.' }),
+    el('p', { class: 'muted', text: 'The app needs a free YouTube API key to load videos. Why? The YouTube app fills your feed using your account — this app deliberately never uses your account, so Google asks it to bring its own “library card” instead.' }),
+    el('p', { class: 'muted', text: 'The key is free (no card, no cost), has nothing to do with your Premium membership, and nothing here ever touches your own feed or history.' }),
     el(
       'details',
       { class: 'help' },

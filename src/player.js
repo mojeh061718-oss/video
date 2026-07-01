@@ -6,14 +6,26 @@ let apiPromise = null;
 function loadIframeApi() {
   if (window.YT?.Player) return Promise.resolve(window.YT);
   if (!apiPromise) {
-    apiPromise = new Promise((resolve) => {
+    apiPromise = new Promise((resolve, reject) => {
+      // Without a timeout a slow/blocked network leaves the kid staring at a
+      // black screen forever; fail after 12s so the UI can show a friendly error.
+      const timer = setTimeout(() => {
+        apiPromise = null; // allow a retry on the next attempt
+        reject(new Error('YouTube player timed out'));
+      }, 12_000);
       const prev = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = () => {
         prev?.();
+        clearTimeout(timer);
         resolve(window.YT);
       };
       const script = document.createElement('script');
       script.src = 'https://www.youtube.com/iframe_api';
+      script.onerror = () => {
+        clearTimeout(timer);
+        apiPromise = null;
+        reject(new Error('YouTube player failed to load'));
+      };
       document.head.appendChild(script);
     });
   }
@@ -24,10 +36,10 @@ function loadIframeApi() {
  * Create a player inside `el`.
  * @param {HTMLElement} el
  * @param {string} videoId
- * @param {{onError?: (code: number) => void, onEnded?: () => void}} handlers
+ * @param {{onReady?: () => void, onError?: (code: number) => void, onEnded?: () => void}} handlers
  * @returns {Promise<{destroy: () => void}>}
  */
-export async function createPlayer(el, videoId, { onError, onEnded } = {}) {
+export async function createPlayer(el, videoId, { onReady, onError, onEnded } = {}) {
   const YT = await loadIframeApi();
   const player = new YT.Player(el, {
     videoId,
@@ -39,6 +51,7 @@ export async function createPlayer(el, videoId, { onError, onEnded } = {}) {
       autoplay: 1,
     },
     events: {
+      onReady: () => onReady?.(),
       onError: (e) => onError?.(e.data),
       onStateChange: (e) => {
         if (e.data === YT.PlayerState.ENDED) onEnded?.();

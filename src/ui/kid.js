@@ -95,25 +95,34 @@ export async function renderFeed(app) {
   const main = el('main', { class: 'kid-main' });
   app.append(main, tabBar('feed'));
 
+  const canFetch = Boolean(settings.apiKey) || Boolean(localStorage.getItem('kidtube:mock'));
+  let refreshing = canFetch;
+
   const draw = async () => {
     const uploads = await getCachedUploads();
     const videos = buildFeed(uploads, getBlocklist(), settings.feedOrder);
     main.innerHTML = '';
-    if (!settings.apiKey && uploads.length === 0 && !localStorage.getItem('kidtube:mock')) {
-      main.appendChild(emptyState('🧸', 'Almost ready!', 'Ask a grown-up to finish setting things up.'));
-    } else if (videos.length === 0) {
-      main.appendChild(emptyState('🎈', 'Nothing to watch right now', 'Ask a grown-up to add some shows!'));
-    } else {
+    if (videos.length > 0) {
       main.appendChild(grid(videos, null));
+    } else if (!canFetch && uploads.length === 0) {
+      main.appendChild(emptyState('🧸', 'Almost ready!', 'Ask a grown-up to finish setting things up.'));
+    } else if (refreshing) {
+      // First load on a fresh device: videos are on their way, not missing.
+      main.appendChild(
+        el('div', { class: 'empty-state' }, el('div', { class: 'spinner' }), el('h2', { text: 'Getting your videos…' }))
+      );
+    } else {
+      main.appendChild(emptyState('🎈', 'Nothing to watch right now', 'Ask a grown-up to add some shows!'));
     }
   };
 
   await draw(); // render whatever is cached immediately…
-  refreshStaleChannels().then(({ refreshed }) => {
-    // …then repaint if the background refresh brought anything new and
-    // the kid is still on the feed.
+  refreshStaleChannels().then(() => {
+    // …then repaint once the background refresh settles, if the kid
+    // is still on the feed.
+    refreshing = false;
     const onFeed = location.hash === '' || location.hash.startsWith('#/feed');
-    if (refreshed > 0 && onFeed && main.isConnected) draw();
+    if (onFeed && main.isConnected) draw();
   });
 }
 

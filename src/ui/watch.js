@@ -39,7 +39,13 @@ export async function renderWatch(app, [videoId]) {
   }
 
   const playerHost = el('div', { class: 'player-host' });
-  const stage = el('div', { class: 'player-stage' }, playerHost);
+  const spinner = el(
+    'div',
+    { class: 'player-loading' },
+    el('div', { class: 'spinner' }),
+    el('p', { text: 'Getting your video…' })
+  );
+  const stage = el('div', { class: 'player-stage' }, spinner, playerHost);
 
   const heart = el('button', {
     class: 'watch-heart' + (isFavorite(video.id) ? ' active' : ''),
@@ -102,6 +108,7 @@ export async function renderWatch(app, [videoId]) {
   let player = null;
   try {
     player = await createPlayer(playerHost, video.id, {
+      onReady: () => spinner.remove(),
       onError: () => {
         // Deleted / private / embed-disabled (codes 100/101/150): the video is
         // unplayable anyway, so silently block it and show a friendly message.

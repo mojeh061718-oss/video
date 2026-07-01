@@ -69,6 +69,16 @@ export function playlistItemsResponse(playlistId) {
       resourceId: { videoId: `vid-${channelId.slice(6, 12)}-${i}` },
     },
   }));
+  // The real API includes placeholders for removed videos: no thumbnails.
+  items.push({
+    snippet: {
+      title: 'Private video',
+      description: 'This video is private.',
+      publishedAt: new Date(Date.UTC(2026, 5, 1, 12)).toISOString(),
+      thumbnails: {},
+      resourceId: { videoId: `vid-${channelId.slice(6, 12)}-private` },
+    },
+  });
   return { items };
 }
 

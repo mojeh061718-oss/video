@@ -204,6 +204,7 @@ img { -webkit-touch-callout: none; user-select: none; }
 .watch-heart.active { color: var(--primary); }
 
 .player-stage {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
@@ -301,6 +302,30 @@ img { -webkit-touch-callout: none; user-select: none; }
 }
 .sheet-action.danger { color: var(--danger); font-weight: 600; }
 .sheet-action.cancel { text-align: center; color: var(--muted); }
+
+.spinner {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 6px solid #f2effa;
+  border-top-color: var(--primary);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.player-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #fff;
+  pointer-events: none;
+}
+.player-loading .spinner { border-color: rgba(255, 255, 255, 0.25); border-top-color: var(--accent); }
 
 .toast {
   position: fixed;

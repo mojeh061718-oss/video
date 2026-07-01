@@ -9,6 +9,8 @@ test('feed renders videos from all approved channels', async ({ page }) => {
   await expect(page.locator('.video-card')).toHaveCount(13);
   await expect(page.getByText('Learning Colors with Ms Rachel')).toBeVisible();
   await expect(page.getByText('Exploring the Fire Station')).toBeVisible();
+  // "Private video" placeholders from uploads playlists must never render.
+  await expect(page.getByText('Private video')).toHaveCount(0);
 });
 
 test('favoriting adds a video to the favorites tab and persists across reload', async ({ page }) => {
